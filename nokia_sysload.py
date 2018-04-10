@@ -24,6 +24,7 @@
 
 import time
 import math
+from collections import deque
 import Nokia5110 as nokia
 from PIL import Image, ImageDraw, ImageFont
 
@@ -56,7 +57,7 @@ def main(args):
 	# Create drawing object.
 	draw = ImageDraw.Draw( image )
 	
-	graph_value = [ 0 ] * 84
+	graph_value = deque( [ 0 ] * 84 )
 
 	try:
 		while True:
@@ -72,17 +73,23 @@ def main(args):
 			# Write the value
 			draw.text( ( 0, 0 ), load[ 0 ] + " " + load[ 1 ] + " " + load[ 2 ], 0, font = font )
 			
-			# add most recent value to position 83
-			graph_value[ 83 ] = load[ 0 ]
+			# add most recent value, remove oldest value
+			graph_value.append( float( load[ 0 ] ) )
+			graph_value.popleft()
 			
-			graph_scale = 1.0
+			graph_scale = math.ceil( max( graph_value ) )
 			
 			# draw graph columns
 			for col in range( 84 ):
-				l_height = float( graph_value[ col ] ) / graph_scale
+				l_height = graph_value[ col ] / graph_scale * 48.0
 				y_top = 48 - int( l_height )
-				draw.line( ( col - 1, 48, col - 1, y_top ), fill = 0 )
+				draw.line( ( col, 48, col, y_top ), fill = 0 )
 				#draw.line( ( 83, 48, 83, 0 ), fill = 0 )
+				
+			# draw scale lines
+			for row in range( 1, graph_scale + 1 ):
+				rowpos = 48 - row * 48 / graph_scale
+				draw.line( ( 0, rowpos, 83, rowpos  ), fill = 0 )
 			
 			# draw the image buffer.
 			disp.image( image )
