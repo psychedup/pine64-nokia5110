@@ -31,13 +31,14 @@ from PIL import Image, ImageDraw, ImageFont
 DC = 23
 RST = 24
 LED = 12
+LEDBRIGHTNESS = 100
 SPIDEV = "/dev/spidev0.0"
 LCDCONTRAST = 70
 
 def main(args):
 	
 	# setup
-	disp = nokia.Nokia5110( SPIDEV, DC, RST, LED )
+	disp = nokia.Nokia5110( SPIDEV, DC, RST, LED, LEDBRIGHTNESS )
 	
 	# Initialize device, set contrast
 	disp.reset()
@@ -94,6 +95,10 @@ def main(args):
 			# draw the image buffer.
 			disp.image( image )
 			disp.display()
+			
+			# light backlight according to load value
+			newbrightness = min( float( load[ 0 ] ) / 4.0, 1.0 ) * 100.0
+			disp.brightness( newbrightness )
 
 			# Pause briefly before drawing next frame.
 			time.sleep( 5 )
