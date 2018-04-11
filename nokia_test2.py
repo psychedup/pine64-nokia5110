@@ -38,7 +38,7 @@ LCDCONTRAST = 65
 def main(args):
 	
 	# setup
-	disp = nokia.Nokia5110( SPIDEV, DC, RST, LED )
+	disp = nokia.Nokia5110( SPIDEV, DC, RST, LED, 0 )
 		
 	# initialize device, set contrast
 	disp.reset()
@@ -79,7 +79,15 @@ def main(args):
 	disp.image( image )
 	disp.display()
 	
-	time.sleep( 10 )
+	# fade brightness in
+	for t in range( 0, 101 ):
+		disp.brightness( t )
+		time.sleep( 0.1 )
+	
+	# now fade out
+	for t in range( 100, -1, -1 ):
+		disp.brightness( t )
+		time.sleep( 0.1 )
 	
 	disp.clear()
 	disp.display()
